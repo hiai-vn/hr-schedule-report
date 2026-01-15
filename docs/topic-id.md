@@ -21,3 +21,22 @@ Sau khi kết nối thành công bằng thư viện client (sử dụng MTProto 
 
 - **Pyrogram**: Sử dụng hàm `client.get_discussion_messages()` hoặc các phương thức liên quan đến ForumTopic
 
+## Phương pháp 3: Sử dụng Script Tự động (Khuyến nghị)
+
+1. **Đảm bảo bạn đã cấu hình API**: Kiểm tra file `.env` đã có `TELEGRAM_API_ID` và `TELEGRAM_API_HASH` (lấy từ [my.telegram.org](https://my.telegram.org))
+
+2. **Chạy script lấy thông tin**: Mở terminal và chạy lệnh sau:
+   ```bash
+   python scripts/get_dialog_info.py
+   ```
+
+3. **Lấy ID**:
+   - Script sẽ in ra danh sách các nhóm và topic của bạn trên màn hình
+   - Tìm tên nhóm làm việc của bạn và copy ID (với Group, ID thường là số âm)
+   - Nếu nhóm là dạng Forum (có Topics), script cũng sẽ liệt kê các Topic bên trong. Tìm topic "Schedule" (hoặc tên tương ứng) và copy ID của nó
+
+4. **Cập nhật cấu hình**: Dán các giá trị ID vừa lấy được vào file `.env` của bạn:
+   ```env
+   TARGET_GROUP_ID=<Group ID vừa copy>
+   TARGET_TOPIC_ID=<Topic ID vừa copy>
+   ```
