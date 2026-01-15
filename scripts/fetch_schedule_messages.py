@@ -3,7 +3,7 @@ import os
 import asyncio
 import json
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add the project root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -41,6 +41,11 @@ async def fetch_messages_for_topic(client, group_id, topic_id, group_name, topic
     print(f"\nFetching messages from '{group_name}' -> '{topic_name}'")
     print(f"  Group ID: {group_id}, Topic ID: {topic_id}")
 
+    # Get start of current month (January 2026)
+    now = datetime.now(timezone.utc)
+    start_of_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+    print(f"  Fetching messages from {start_of_month.strftime('%Y-%m-%d')} onwards")
+
     all_messages = []
     offset_id = 0
     request_count = 0
@@ -57,8 +62,13 @@ async def fetch_messages_for_topic(client, group_id, topic_id, group_name, topic
             group_id,
             reply_to=topic_id,
             limit=limit,
-            offset_id=offset_id
+            offset_id=offset_id,
+            offset_date=start_of_month
         ):
+            # Stop if message is older than start of month
+            if message.date and message.date < start_of_month:
+                print(f"  Reached messages older than {start_of_month.strftime('%Y-%m-%d')}, stopping...")
+                break
             # Get sender info
             sender = await message.get_sender()
             sender_name = None
