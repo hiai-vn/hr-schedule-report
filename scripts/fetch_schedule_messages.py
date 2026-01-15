@@ -62,8 +62,7 @@ async def fetch_messages_for_topic(client, group_id, topic_id, group_name, topic
             group_id,
             reply_to=topic_id,
             limit=limit,
-            offset_id=offset_id,
-            offset_date=start_of_month
+            offset_id=offset_id
         ):
             # Stop if message is older than start of month
             if message.date and message.date < start_of_month:
