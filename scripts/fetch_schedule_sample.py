@@ -13,7 +13,7 @@ from src import config
 GROUP_ID = -1002804503194
 TOPIC_ID = 5
 
-async def fetch_sample_messages(client, limit=10):
+async def fetch_sample_messages(client, limit=200):
     """Fetch first N messages from the Schedule topic."""
     print(f"Fetching {limit} messages from Schedule topic...")
 
@@ -51,13 +51,23 @@ def main():
     client = TelegramClient(config.SESSION_NAME, config.TELEGRAM_API_ID, config.TELEGRAM_API_HASH)
 
     async def run():
-        messages = await fetch_sample_messages(client, limit=10)
+        messages = await fetch_sample_messages(client, limit=200)
+
+        # Create data structure with metadata
+        data = {
+            "group_id": GROUP_ID,
+            "topic_id": TOPIC_ID,
+            "fetched_at": asyncio.get_event_loop().time(),
+            "total_messages": len(messages),
+            "messages": messages
+        }
 
         # Save to file first
         output_path = os.path.join(os.path.dirname(__file__), '..', 'data_raw', 'schedule_sample.json')
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(messages, f, ensure_ascii=False, indent=2)
+            json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"Saved {len(messages)} messages to {output_path}")
+        print(f"Group ID: {GROUP_ID}, Topic ID: {TOPIC_ID}")
 
     client.start()
     client.loop.run_until_complete(run())
