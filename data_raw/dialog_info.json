@@ -1,0 +1,240 @@
+{
+  "fetched_at": "2026-01-15T16:45:28.513697",
+  "total_dialogs": 38,
+  "groups_and_channels": [
+    {
+      "name": "[HiAI] Tâm Nhung",
+      "id": -1003144986116,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "Dev",
+          "id": 2
+        },
+        {
+          "title": "Design",
+          "id": 273
+        },
+        {
+          "title": "BA",
+          "id": 4
+        },
+        {
+          "title": "Daily Report",
+          "id": 8
+        },
+        {
+          "title": "DB",
+          "id": 6
+        },
+        {
+          "title": "General",
+          "id": 1
+        }
+      ]
+    },
+    {
+      "name": "[HiAI] PhuHoaFood",
+      "id": -1003118895410,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "General",
+          "id": 1
+        },
+        {
+          "title": "Dev",
+          "id": 2
+        },
+        {
+          "title": "Test",
+          "id": 7
+        },
+        {
+          "title": "DB",
+          "id": 9
+        },
+        {
+          "title": "BA",
+          "id": 4
+        },
+        {
+          "title": "Daily Report",
+          "id": 24
+        },
+        {
+          "title": "Design",
+          "id": 7233
+        }
+      ]
+    },
+    {
+      "name": "[HiAI] LeeApp",
+      "id": -1003132205951,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "DB",
+          "id": 8
+        },
+        {
+          "title": "Dev",
+          "id": 2
+        },
+        {
+          "title": "General",
+          "id": 1
+        },
+        {
+          "title": "BA",
+          "id": 4
+        },
+        {
+          "title": "Daily Report",
+          "id": 15
+        },
+        {
+          "title": "Test",
+          "id": 6
+        }
+      ]
+    },
+    {
+      "name": "HiAI",
+      "id": -1002804503194,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "General",
+          "id": 1
+        },
+        {
+          "title": "Intern",
+          "id": 3
+        },
+        {
+          "title": "Schedule",
+          "id": 5
+        }
+      ]
+    },
+    {
+      "name": "[HiAI] Intern Dec_2025",
+      "id": -1003527893562,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "General",
+          "id": 1
+        },
+        {
+          "title": "Report",
+          "id": 6
+        },
+        {
+          "title": "Schedule",
+          "id": 2
+        },
+        {
+          "title": "DEV",
+          "id": 41
+        }
+      ]
+    },
+    {
+      "name": "[HiAI] Database",
+      "id": -5077404576,
+      "is_group": true,
+      "is_channel": false,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "[HiAI] TRUEID",
+      "id": -1003558579776,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": true,
+      "topics": [
+        {
+          "title": "General",
+          "id": 1
+        },
+        {
+          "title": "BA",
+          "id": 2
+        },
+        {
+          "title": "Dev",
+          "id": 3
+        },
+        {
+          "title": "Design",
+          "id": 5
+        },
+        {
+          "title": "Test",
+          "id": 4
+        }
+      ]
+    },
+    {
+      "name": "Team BA HiAI",
+      "id": -4999983292,
+      "is_group": true,
+      "is_channel": false,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "[DB+BA] _ Kế toán _ PHF",
+      "id": -4950080643,
+      "is_group": true,
+      "is_channel": false,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "HiAI_Media",
+      "id": -1002792928434,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "HiAI_Media",
+      "id": -4856044913,
+      "is_group": true,
+      "is_channel": false,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "Lam and Kyen",
+      "id": -1002660954001,
+      "is_group": true,
+      "is_channel": true,
+      "is_forum": false,
+      "topics": []
+    },
+    {
+      "name": "Lam and Kyen",
+      "id": -4678679130,
+      "is_group": true,
+      "is_channel": false,
+      "is_forum": false,
+      "topics": []
+    }
+  ]
+}
