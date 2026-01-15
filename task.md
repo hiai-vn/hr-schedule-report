@@ -15,7 +15,7 @@
 | **1.3** | **Cấu hình Kết nối Telegram** | Viết script kết nối và xác thực với Telegram bằng `API ID` và `API Hash`. Đảm bảo có thể truy cập được các nhóm mục tiêu. | Cao | 1 ngày |
 | **1.4** | **Xác định Group và Topic ID** | Lấy chính xác `Group ID` của các nhóm làm việc và `Topic ID` (hoặc `message_thread_id`) của topic "Schedule" trong các nhóm đó. | Cao | 0.5 ngày |
 
-## II. Phase 2: Thu thập Dữ liệu (Data Collection)
+## II. Phase 2: Thu thập Dữ liệu (Data Collection) - (Completed)
 
 | ID | Nhiệm vụ (Task) | Mô tả chi tiết | Ưu tiên | Thời gian ước tính |
 | :--- | :--- | :--- | :--- | :--- |
