@@ -21,7 +21,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **2.1** | **Truy vấn Tin nhắn** | Viết hàm sử dụng thư viện client (Telethon/Pyrogram) để truy vấn tất cả tin nhắn trong một khoảng thời gian nhất định (ví dụ: 1 tháng) từ `Group ID` và `Topic ID` đã xác định. | Cao | 1 ngày |
 | **2.2** | **Lọc Tin nhắn Ban đầu** | Lọc bỏ các tin nhắn không liên quan (ví dụ: tin nhắn hệ thống, tin nhắn quá ngắn) và chỉ giữ lại các tin nhắn có khả năng chứa thông tin lịch làm việc. | Trung bình | 0.5 ngày |
-| **2.3** | **Lưu trữ Dữ liệu Thô** | Lưu trữ dữ liệu tin nhắn thô (bao gồm ID người gửi, thời gian, nội dung tin nhắn) vào cơ sở dữ liệu tạm thời (ví dụ: SQLite) hoặc file JSON để dễ dàng xử lý lại. | Trung bình | 0.5 ngày |
+| **2.3** | **Lưu trữ Dữ liệu Thô** | Lưu trữ dữ liệu tin nhắn thô (bao gồm ID người gửi, thời gian, nội dung tin nhắn) vào cơ sở dữ liệu tạm thời (ví dụ: SQLite) và file JSON trong thư mục data_raw để dễ dàng xử lý lại. | Trung bình | 0.5 ngày |
 
 ## III. Phase 3: Xử lý Ngôn ngữ Tự nhiên (NLP/AI Processing)
 
