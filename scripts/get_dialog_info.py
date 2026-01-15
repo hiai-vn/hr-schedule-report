@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from telethon import TelegramClient
 from telethon.tl.types import Channel
+from telethon.tl.functions.messages import GetForumTopicsRequest
 from src import config
 
 def get_dialog_info():
@@ -55,10 +56,16 @@ def get_dialog_info():
                     dialog_info["is_forum"] = True
                     print("  [This is a Forum. Fetching Topics...]")
                     try:
-                        # get_forum_topics
-                        topics = await client.get_forum_topics(entity)
-                        if topics:
-                            for topic in topics:
+                        # Use raw API request to get forum topics
+                        result = await client(GetForumTopicsRequest(
+                            peer=entity,
+                            offset_date=None,
+                            offset_id=0,
+                            offset_topic=0,
+                            limit=100
+                        ))
+                        if result.topics:
+                            for topic in result.topics:
                                 topic_info = {
                                     "title": topic.title,
                                     "id": topic.id
@@ -74,7 +81,7 @@ def get_dialog_info():
                 print("-" * 40)
 
         # Save to JSON file
-        output_file = os.path.join(os.path.dirname(__file__), '..', 'dialog_info.json')
+        output_file = os.path.join(os.path.dirname(__file__), '..', 'data_raw/dialog_info.json')
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(dialog_data, f, indent=2, ensure_ascii=False)
 
