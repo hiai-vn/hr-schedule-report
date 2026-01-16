@@ -10,11 +10,11 @@ class GroupMessagesByWeekNode(Node):
     # messages:
     #   - message_id: 12345
     #     name: "Thu Nguyen"
-    #     date: "2026-01-13"
+    #     date: "2026-01-13 09:30"
     #     message: "Dạ em xin phép làm remote hôm nay (14/1) do em bị sốt ạ"
     #   - message_id: 12346
     #     name: "Nguyễn Duy Thắng"
-    #     date: "2026-01-13"
+    #     date: "2026-01-13 08:45"
     #     message: "Dạ em xin phép thầy và anh chị cho em lên trễ tầm 10h ạ, do có việc cá nhân ạ"
     
     def prep(self, shared):
@@ -49,10 +49,12 @@ class GroupMessagesByWeekNode(Node):
             }
             weeks[week_key]['messages'].append(clean_msg)
         
-        # Convert to YAML format for each week
+        # Sort messages within each week by datetime before converting to YAML
         yaml_outputs = []
         for week_key in sorted(weeks.keys()):
             week_data = weeks[week_key]
+            # Sort messages by datetime (earliest first)
+            week_data['messages'].sort(key=lambda x: x['date'])
             yaml_str = yaml.dump(week_data, allow_unicode=True, default_flow_style=False, sort_keys=False)
             yaml_outputs.append(yaml_str)
         
