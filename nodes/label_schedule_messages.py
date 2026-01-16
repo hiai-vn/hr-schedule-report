@@ -27,7 +27,7 @@ class LabelScheduleMessagesNode(AsyncParallelBatchNode):
     Uses AsyncParallelBatchNode to call LLM for each week in parallel.
     """
 
-    SYSTEM_PROMPT = """Bạn là một trợ lý phân loại tin nhắn xin phép lịch làm việc.
+    SYSTEM_PROMPT = """Bạn là một trợ lý phân loại tin nhắn xin phép lịch làm việc. Chỉ trả về YAML, không có text khác.
 
 Phân loại các tin nhắn vào các nhãn sau:
 - nghi: xin nghỉ cả ngày hoặc nhiều ngày (nghỉ phép, nghỉ làm, off)
@@ -35,12 +35,27 @@ Phân loại các tin nhắn vào các nhãn sau:
 - nua_buoi: xin nghỉ nửa buổi (nghỉ sáng, nghỉ chiều)
 - remote: xin làm remote, làm online, work from home
 
-Bỏ qua các tin nhắn không thuộc loại nào trên.
-
-Ví dụ:
+---
+Ví dụ 1:
 Input (CSV):
 message_id,name,date,message
 1047,Tín Lữ,2026-01-13 23:11,Em xin phép làm remote hôm nay (14/1) do em bị sốt ạ
+
+Output (YAML):
+nghi: []
+tre: []
+nua_buoi: []
+remote:
+  - message_id: 1047
+    name: Tín Lữ
+    dates:
+      - "2026-01-14"
+    info: Làm remote do bị sốt
+
+---
+Ví dụ 2:
+Input (CSV):
+message_id,name,date,message
 1042,Nguyễn Duy Thắng,2026-01-13 00:41,Dạ em xin phép thầy và anh chị cho em lên trễ tầm 10h ạ
 
 Output (YAML):
@@ -50,22 +65,43 @@ tre:
     name: Nguyễn Duy Thắng
     dates:
       - "2026-01-13"
-    info: "Lên trễ đến 10h"
+    info: Lên trễ đến 10h
 nua_buoi: []
-remote:
-  - message_id: 1047
-    name: Tín Lữ
-    dates:
-      - "2026-01-14"
-    info: "Làm remote do bị sốt"
+remote: []
 
+---
+Ví dụ 3:
+Input (CSV):
+message_id,name,date,message
+1050,Minh Trần,2026-01-15 08:00,Em xin nghỉ phép ngày 16/1 và 17/1 ạ
+1051,Hoa Nguyễn,2026-01-15 09:30,Em xin nghỉ buổi chiều hôm nay ạ
+
+Output (YAML):
+nghi:
+  - message_id: 1050
+    name: Minh Trần
+    dates:
+      - "2026-01-16"
+      - "2026-01-17"
+    info: Nghỉ phép 2 ngày
+tre: []
+nua_buoi:
+  - message_id: 1051
+    name: Hoa Nguyễn
+    dates:
+      - "2026-01-15"
+    info: Nghỉ buổi chiều
+remote: []
+
+---
 Lưu ý:
-- Chỉ trả về YAML, không có text khác
-- dates phải là danh sách các ngày theo format YYYY-MM-DD
-- Nếu tin nhắn đề cập ngày theo format d/m (ví dụ: 14/1), convert sang YYYY-MM-DD dựa vào năm của ngày gửi tin nhắn
+- CHỈ trả về YAML thuần, KHÔNG có markdown, KHÔNG có ```yaml
+- dates là danh sách ngày theo format YYYY-MM-DD
+- Nếu tin nhắn đề cập ngày d/m, convert sang YYYY-MM-DD dựa vào năm của ngày gửi
 - Nếu không đề cập ngày cụ thể, dùng ngày gửi tin nhắn
-- info nên ngắn gọn, tối đa 50 ký tự
-- Nếu không có tin nhắn nào thuộc một category thì để mảng rỗng []"""
+- info ngắn gọn, tối đa 50 ký tự
+- Category không có tin nhắn thì để mảng rỗng []
+- Bỏ qua tin nhắn không thuộc loại nào"""
 
     async def prep_async(self, shared):
         """Get list of weekly data from shared store."""
@@ -94,24 +130,42 @@ Input (CSV):
 {csv_string}
 
 Output (YAML):"""
-
+        print(prompt)  # Debug: print the prompt being sent
         response_text = await call_llm_async(prompt)
         response_text = response_text.strip()
 
         # Clean up response - remove markdown code blocks if present
-        if response_text.startswith('```'):
-            response_text = response_text.split('\n', 1)[1]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-            response_text = response_text.strip()
+        response_text = self._clean_llm_response(response_text)
 
         result = yaml.safe_load(response_text)
+        assert isinstance(result, dict), f"Expected dict, got {type(result)}: {response_text[:200]}"
 
         return {
             'week_key': week_data.get('week_key'),
             'week_range': week_data.get('week_range'),
             'labels': self._normalize_result(result)
         }
+
+    def _clean_llm_response(self, text):
+        """Clean LLM response to extract valid YAML."""
+        import re
+        text = text.strip()
+
+        # Remove markdown code blocks (```yaml, ```yml, ``` etc.)
+        match = re.search(r'^```(?:yaml|yml)?\s*\n(.*?)```\s*$', text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+
+        # Fallback: strip ``` from start and end
+        if text.startswith('```'):
+            lines = text.split('\n')
+            if lines[0].strip().startswith('```'):
+                lines = lines[1:]
+            if lines and lines[-1].strip() == '```':
+                lines = lines[:-1]
+            return '\n'.join(lines).strip()
+
+        return text
 
     def _normalize_result(self, result):
         """Ensure result has all required categories."""
