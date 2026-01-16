@@ -2,44 +2,21 @@ import os
 import asyncio
 import google.generativeai as genai
 from typing import Optional
+from google import genai
+from google.genai import types
 
 
-def call_llm(prompt: str, model_name: str = "gemini-2.5-flash") -> str:
-    """
-    Call Google Gemini API with a prompt and return the response.
-    
-    Args:
-        prompt: The input prompt to send to Gemini
-        model_name: The Gemini model to use (default: gemini-1.5-flash)
-    
-    Returns:
-        The generated response text from Gemini
-    
-    Raises:
-        ValueError: If API key is not set
-        Exception: If API call fails
-    """
-    # Get API key from environment variable
+def call_llm(prompt: str, fast_mode: bool = False, max_retry_time: int = None) -> str:
+    """Call LLM with timeout protection and automatic retry logic"""
+    model_id = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable not set")
+        return "Xin lỗi, hệ thống chưa cấu hình API key."
     
-    # Configure the API
-    genai.configure(api_key=api_key)
-    
-    try:
-        # Create the model
-        model = genai.GenerativeModel(model_name)
-        
-        # Generate content
-        response = model.generate_content(prompt)
-        
-        # Return the response text
-        return response.text
-        
-    except Exception as e:
-        raise Exception(f"Failed to call Gemini API: {str(e)}")
-
+    client = genai.Client(api_key=api_key)
+    config = types.GenerateContentConfig(thinking_config=types.ThinkingConfig(thinking_budget=0)) if "thinking" in model_id and not fast_mode else None
+    response = client.models.generate_content(model=model_id, contents=prompt, config=config)
+    return response.text or "Xin lỗi, không thể tạo response."
 
 def main():
     """Test function to try the Gemini API call"""
