@@ -1,7 +1,7 @@
 """
 phân tích dữ liệu lịch làm việc từ topic "Schedule" trong các nhóm Telegram và xuất báo cáo thống kê ngày công (đi làm, nghỉ, trễ, nửa buổi, remote) ra file Excel/Google Sheet hàng tháng.
 """
-from pocketflow import Node
+from pocketflow import AsyncNode
 import sys
 import os
 import asyncio
@@ -17,14 +17,14 @@ from telethon import TelegramClient
 from src import config
 
 
-class FetchTelegramMessagesNode(Node):
+class FetchTelegramMessagesNode(AsyncNode):
     """Node to fetch messages from Telegram schedule topics for current month.
 
     Output CSV format:
         message_id,name,date,message
     """
 
-    def prep(self, shared):
+    async def prep_async(self, shared):
         # Get current month parameters
         now = datetime.now(timezone.utc)
         return {
@@ -32,9 +32,9 @@ class FetchTelegramMessagesNode(Node):
             "month": now.month
         }
 
-    def exec(self, params):
+    async def exec_async(self, params):
         # Run the telegram fetching logic
-        return asyncio.run(self._fetch_messages_async(params))
+        return await self._fetch_messages_async(params)
 
     async def _fetch_messages_async(self, params):
         """Async function to fetch messages from Telegram"""
@@ -170,6 +170,6 @@ class FetchTelegramMessagesNode(Node):
 
         return output.getvalue()
 
-    def post(self, shared, prep_res, exec_res):
+    async def post_async(self, shared, prep_res, exec_res):
         shared["telegram_messages_csv"] = exec_res
         return "default"
