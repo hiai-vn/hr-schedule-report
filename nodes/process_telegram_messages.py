@@ -20,7 +20,7 @@ class ProcessTelegramMessagesNode(Node):
                 processed_msg = {
                     'message_id': msg['message_id'],
                     'name': msg['sender_name'] or f"User {msg['sender_id']}",
-                    'date': date_obj.strftime('%Y-%m-%d'),
+                    'date': date_obj.strftime('%Y-%m-%d %H:%M'),
                     'message': msg['text'].strip(),
                     'datetime_obj': date_obj  # Keep for sorting/grouping
                 }
