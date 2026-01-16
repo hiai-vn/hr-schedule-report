@@ -29,7 +29,7 @@ def create_schedule_flow():
     # Create nodes
     fetch_node = FetchTelegramMessagesNode()
     group_node = GroupMessagesByWeekNode()
-    label_node = LabelScheduleMessagesNode()
+    label_node = LabelScheduleMessagesNode(max_retries=3, wait=1)
     export_node = ExportExcelNode()
 
     # Connect nodes in sequence
