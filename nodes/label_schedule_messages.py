@@ -5,10 +5,11 @@ Node to label schedule messages using LLM (Gemini) into categories:
 - nua_buoi: xin nghỉ nửa buổi (sáng / chiều)
 - remote: xin làm remote / làm online
 
-Input: CSV string (messages for a week)
-Output: YAML with categories
+Uses AsyncParallelBatchNode to process multiple weeks in parallel.
+Input: List of weekly CSV data from GroupMessagesByWeekNode
+Output: Merged labeled messages from all weeks
 """
-from pocketflow import AsyncNode
+from pocketflow import AsyncParallelBatchNode
 import yaml
 import sys
 import os
@@ -17,11 +18,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.call_llm import call_llm_async
 
 
-class LabelScheduleMessagesNode(AsyncNode):
-    """Node to classify schedule messages using Gemini LLM.
+class LabelScheduleMessagesNode(AsyncParallelBatchNode):
+    """Node to classify schedule messages using Gemini LLM in parallel.
 
-    Input: CSV string with columns: message_id, name, date, message (messages for a week)
-    Output: YAML with categories: nghi, tre, nua_buoi, remote
+    Input: List of weekly data dicts with csv_string for each week
+    Output: Merged labeled messages with categories: nghi, tre, nua_buoi, remote
+
+    Uses AsyncParallelBatchNode to call LLM for each week in parallel.
     """
 
     SYSTEM_PROMPT = """Bạn là một trợ lý phân loại tin nhắn xin phép lịch làm việc.
@@ -65,13 +68,25 @@ Lưu ý:
 - Nếu không có tin nhắn nào thuộc một category thì để mảng rỗng []"""
 
     async def prep_async(self, shared):
-        """Get CSV string from shared store."""
-        return shared.get("telegram_messages_csv", "")
+        """Get list of weekly data from shared store."""
+        return shared.get("weekly_messages", [])
 
-    async def exec_async(self, csv_string):
-        """Classify all messages in CSV using LLM."""
+    async def exec_async(self, week_data):
+        """Classify messages for a single week using LLM.
+
+        Args:
+            week_data: Dict with keys: week_key, week_range, csv_string
+
+        Returns:
+            Dict with week info and labeled results
+        """
+        csv_string = week_data.get('csv_string', '')
         if not csv_string:
-            return self._empty_result()
+            return {
+                'week_key': week_data.get('week_key'),
+                'week_range': week_data.get('week_range'),
+                'labels': self._empty_result()
+            }
 
         prompt = f"""{self.SYSTEM_PROMPT}
 
@@ -92,8 +107,11 @@ Output (YAML):"""
 
         result = yaml.safe_load(response_text)
 
-        # Validate and normalize result
-        return self._normalize_result(result)
+        return {
+            'week_key': week_data.get('week_key'),
+            'week_range': week_data.get('week_range'),
+            'labels': self._normalize_result(result)
+        }
 
     def _normalize_result(self, result):
         """Ensure result has all required categories."""
@@ -118,14 +136,39 @@ Output (YAML):"""
         }
 
     async def post_async(self, shared, prep_res, exec_res):
-        """Store results in shared store."""
-        # Convert to YAML
-        yaml_output = yaml.dump(
-            exec_res,
+        """Merge results from all weeks and store in shared store."""
+        # Merge all weekly results
+        merged = self._empty_result()
+
+        weekly_results = []
+        for week_result in (exec_res or []):
+            if not week_result:
+                continue
+
+            # Store per-week result
+            weekly_results.append({
+                'week_key': week_result.get('week_key'),
+                'week_range': week_result.get('week_range'),
+                'labels': week_result.get('labels', self._empty_result())
+            })
+
+            # Merge into total
+            labels = week_result.get('labels', {})
+            for category in ['nghi', 'tre', 'nua_buoi', 'remote']:
+                if category in labels:
+                    merged[category].extend(labels[category])
+
+        # Sort weekly results by week_key
+        weekly_results.sort(key=lambda x: x.get('week_key', ''))
+
+        # Store results
+        shared["labeled_messages"] = merged
+        shared["weekly_labeled_messages"] = weekly_results
+        shared["labeled_messages_yaml"] = yaml.dump(
+            merged,
             allow_unicode=True,
             default_flow_style=False,
             sort_keys=False
         )
-        shared["labeled_messages_yaml"] = yaml_output
-        shared["labeled_messages"] = exec_res
+
         return "default"
